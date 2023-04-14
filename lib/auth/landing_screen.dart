@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:recipe_app/auth/login_screen.dart';
+import 'package:recipe_app/auth/register_screen.dart';
+import 'package:recipe_app/services/global_methods.dart';
 
 class LandingScreen extends StatelessWidget {
   const LandingScreen({super.key});
@@ -8,16 +11,20 @@ class LandingScreen extends StatelessWidget {
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
+        height: double.infinity,
+        decoration: BoxDecoration(
           image: DecorationImage(
-            image: NetworkImage("https://picsum.photos/id/237/200/300"),
+            image: const AssetImage('assets/images/auth/landing.jpg'),
+            alignment: Alignment.center,
             fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+                Colors.black.withOpacity(0.6), BlendMode.darken),
           ),
         ),
         child: Column(
           children: [
             const SizedBox(
-              height:600,
+              height: 600,
             ),
             Padding(
               padding: const EdgeInsets.all(15.0),
@@ -26,7 +33,12 @@ class LandingScreen extends StatelessWidget {
                   backgroundColor: Colors.brown[400],
                   minimumSize: const Size.fromHeight(50),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  GlobalMethods.navigateTo(
+                    ctx: context,
+                    routeName: LoginScreen.routeName,
+                  );
+                },
                 child: const Text(
                   'Login Here',
                   style: TextStyle(
@@ -36,7 +48,6 @@ class LandingScreen extends StatelessWidget {
                 ),
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.all(15.0),
               child: ElevatedButton(
@@ -44,9 +55,14 @@ class LandingScreen extends StatelessWidget {
                   backgroundColor: Colors.brown[400],
                   minimumSize: const Size.fromHeight(50),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  GlobalMethods.navigateTo(
+                    ctx: context,
+                    routeName: RegisterScreen.routeName,
+                  );
+                },
                 child: const Text(
-                  'Sign Up Here',
+                  'Sign Up',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -54,7 +70,6 @@ class LandingScreen extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(
               height: 20,
             )

@@ -2,6 +2,7 @@ import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:recipe_app/components/categ_widget.dart';
+import 'package:recipe_app/components/recommendation_widget.dart';
 import 'package:recipe_app/components/text_widget.dart';
 import 'package:recipe_app/services/utils.dart';
 
@@ -54,7 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
-
                     const Spacer(),
                     InkWell(
                       onTap: () {
@@ -119,22 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 5,
               ),
               // categories boxes
-              Row(
-                children: [
-                  Flexible(
-                    child: SizedBox(
-                      height: size.height * 0.12,
-                      child: ListView.builder(
-                        itemCount: 4,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (BuildContext context, int index) {
-                          return const CatScreen();
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              const CatScreen(),
 
               const SizedBox(
                 height: 15,
@@ -148,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     TextWidget(
                       color: Colors.black54,
                       textSize: 20,
-                      text: 'Recommendation',
+                      text: 'Recommended',
                       isTitle: true,
                     ),
                     TextButton(
@@ -164,48 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               // recommended cards
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Material(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.grey,
-                      child: InkWell(
-                        onTap: () {},
-                        child: Column(
-                          children: [
-                            FancyShimmerImage(
-                              imageUrl: '',
-                              height: size.width * 0.4,
-                              width: size.width * 0.4,
-                              boxFit: BoxFit.cover,
-                              alignment: Alignment.topLeft,
-                              boxDecoration: const BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius: BorderRadius.
-                                
-                              ),
-                              errorWidget: Image.asset(
-                                  'assets/images/ui/sliced.jpeg'),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical:5.0),
-                              child: TextWidget(
-                                color: Colors.black,
-                                textSize: 18,
-                                text: 'Macaron',
-                                isTitle: true,
-                              ),
-                            ),
-                            const SizedBox(height: 5,)
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              )
+              const RecommendWidget(),
             ],
           ),
         ),
@@ -213,3 +157,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+

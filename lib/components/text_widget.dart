@@ -9,12 +9,14 @@ class TextWidget extends StatelessWidget {
     required this.textSize,
     required this.text,
     this.isTitle = false,
-    this.maxLines = 10
+    this.maxLines = 10,
+    this.family = 'Overpass',
   });
 
   final String text;
   final Color color;
   final double textSize;
+  final String family;
   int maxLines = 10;
   bool isTitle;
 
@@ -28,6 +30,7 @@ class TextWidget extends StatelessWidget {
         color: color,
         fontSize: textSize,
         fontWeight: isTitle ? FontWeight.bold : FontWeight.normal,
+        fontFamily: family,
       ),
     );
   }
