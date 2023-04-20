@@ -1,10 +1,65 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:recipe_app/components/text_widget.dart';
+import 'package:recipe_app/models/singlerecipe_model.dart';
 import 'package:recipe_app/services/utils.dart';
+import 'package:http/http.dart' as http;
 
-class RecipeScreen extends StatelessWidget {
+class RecipeScreen extends StatefulWidget {
   static const routeName = '/RecipeScreen';
-  const RecipeScreen({super.key});
+  const RecipeScreen({super.key, required this.postUrl});
+  final int postUrl;
+
+  @override
+  State<RecipeScreen> createState() => _RecipeScreenState();
+}
+
+class _RecipeScreenState extends State<RecipeScreen> {
+  late Future<SingleRecipeModel> _futureRecipe;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureRecipe = getRecipe(widget.postUrl);
+  }
+
+  Future<SingleRecipeModel> getRecipe(int recipeId) async {
+    String url =
+        "https://api.spoonacular.com/recipes/782585/information?apiKey=9a500d49ff474847b99f5b7c86265fb1";
+
+    var response = await http.get(Uri.parse(url), headers: {
+      "Accept": "application/json",
+      "Content-type": "application/json"
+    });
+    print(response);
+    if (response.statusCode == 200) {
+      print(json.decode(response.body));
+    } else {
+      print(response.statusCode);
+    }
+    // final result = jsonDecode(response.body);
+    // final instruction = result['instructions'];
+    // // print(result);
+    // final ingredients = List<String>.from(result['extendedIngredients']
+    //     .map((ingredient) => ingredient['originalString']));
+    // print(result);
+    // return SingleRecipeModel(
+    //   image: result['image'],
+    //   title: result['title'],
+    //   ingredients: ingredients,
+    //   instruction: instruction,
+    //   id: result['id'],
+    //   desc: result['sourceName'],
+    //   mins: result['readyInMinutes'],
+    //   score: result['healthScore'],
+    //   serves: result['servings'],
+    // );
+
+    // } else {
+    //   throw Exception("Failed to load recipe");
+    // }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,139 +70,166 @@ class RecipeScreen extends StatelessWidget {
       //   backgroundColor: Colors.transparent,
       // ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(
-              height: size.height * 0.4,
-              child: Container(
-                height: double.infinity,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage("assets/images/ui/sliced.jpeg"),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Stack(
+        child: FutureBuilder<SingleRecipeModel>(
+            future: _futureRecipe,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final recipe = snapshot.data!;
+                return Column(
                   children: [
-                    Positioned(
-                      left: 30,
-                      top: 60,
-                      child: CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.white,
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(
-                            Icons.arrow_back_outlined,
-                            color: Colors.blue,
-                            size: 25,
+                    SizedBox(
+                      height: size.height * 0.4,
+                      child: Container(
+                        height: double.infinity,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: NetworkImage(recipe.image),
+                            fit: BoxFit.cover,
                           ),
                         ),
-                      ),
-                    ),
-                    Positioned(
-                      right: 30,
-                      top: 60,
-                      child: CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.white,
-                        child: IconButton(
-                          onPressed: () {},
-                          icon: Icon(
-                            Icons.bookmark_add_outlined,
-                            color: Colors.grey.shade700,
-                            size: 25,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Column(
-                // crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        // mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          TextWidget(
-                            color: Colors.blueGrey,
-                            textSize: 22,
-                            text: "Spicy Ramen Chips",
-                            isTitle: true,
-                            maxLines: 10,
-                          ),
-                          const Text(
-                            'By Chloe',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16,
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              left: 30,
+                              top: 60,
+                              child: CircleAvatar(
+                                radius: 20,
+                                backgroundColor: Colors.white,
+                                child: IconButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  icon: const Icon(
+                                    Icons.arrow_back_outlined,
+                                    color: Colors.blue,
+                                    size: 25,
+                                  ),
+                                ),
+                              ),
                             ),
+                            Positioned(
+                              right: 30,
+                              top: 60,
+                              child: CircleAvatar(
+                                radius: 20,
+                                backgroundColor: Colors.white,
+                                child: IconButton(
+                                  onPressed: () {
+                                    print(widget.postUrl);
+                                  },
+                                  icon: Icon(
+                                    Icons.bookmark_add_outlined,
+                                    color: Colors.grey.shade700,
+                                    size: 25,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Column(
+                        // crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                // mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  TextWidget(
+                                    color: Colors.blueGrey,
+                                    textSize: 22,
+                                    text: "Spicy Ramen Chips",
+                                    isTitle: true,
+                                    maxLines: 10,
+                                  ),
+                                  const Text(
+                                    'By Chloe',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          Row(
+                            children: const [
+                              InfoIcons(
+                                icon: Icons.timer_outlined,
+                                text: "10 mins",
+                              ),
+                              InfoIcons(
+                                icon: Icons.energy_savings_leaf_outlined,
+                                text: "500 kcl",
+                              ),
+                              InfoIcons(
+                                icon: Icons.person_2_outlined,
+                                text: "2 servings",
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 20.0),
+                                child: TextWidget(
+                                  color: Colors.grey.shade500,
+                                  textSize: 20,
+                                  text: "Ingredients",
+                                  isTitle: true,
+                                ),
+                              ),
+                            ],
+                          ),
+                          MyListWidget(),
+                          Row(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 15.0),
+                                child: TextWidget(
+                                  color: Colors.grey.shade500,
+                                  textSize: 20,
+                                  text: "Recipe Preparation",
+                                  isTitle: true,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  Row(
-                    children: const [
-                      InfoIcons(
-                        icon: Icons.timer_outlined,
-                        text: "10 mins",
-                      ),
-                      InfoIcons(
-                        icon: Icons.energy_savings_leaf_outlined,
-                        text: "500 kcl",
-                      ),
-                      InfoIcons(
-                        icon: Icons.person_2_outlined,
-                        text: "2 servings",
-                      ),
-                    ],
-                  ),
-                  Row(
+                    ),
+                  ],
+                );
+              } else if (snapshot.hasError) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20.0),
-                        child: TextWidget(
-                          color: Colors.grey.shade500,
-                          textSize: 20,
-                          text: "Ingredients",
-                          isTitle: true,
-                        ),
+                      const SizedBox(
+                        height: 100,
                       ),
+                      Text('${snapshot.error}'),
                     ],
                   ),
-                  MyListWidget(),
-                  Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 15.0),
-                        child: TextWidget(
-                          color: Colors.grey.shade500,
-                          textSize: 20,
-                          text: "Recipe Preparation",
-                          isTitle: true,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+                );
+              }
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }),
       ),
     );
   }

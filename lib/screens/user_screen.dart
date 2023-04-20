@@ -16,7 +16,7 @@ class _UserProfileState extends State<UserProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Container(
+        child: SizedBox(
           width: double.infinity,
           height: double.infinity,
           child: Padding(
@@ -81,14 +81,40 @@ class _UserProfileState extends State<UserProfile> {
                 const SizedBox(
                   height: 20,
                 ),
-                _listTiles(
-                  color: Colors.black,
-                  title: "Log Out",
-                  icon: Icons.logout_rounded,
-                  onPressed: () async {
-                    await _logoutDialog();
-                  },
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade400,
+                  ),
+                  child: ListTile(
+                    selected: true,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 25),
+                    title: TextWidget(
+                      text: "title",
+                      color: Colors.black,
+                      textSize: 21,
+                      // isTitle: true,
+                    ),
+                    leading: const Icon(Icons.login_outlined),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () async {
+                      await FirebaseAuth.instance.signOut().then((value) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const LoginScreen()));
+                      });
+                    },
+                  ),
                 ),
+                ListTiles(
+                  title: "Sign Up",
+                  icon: Icons.abc_sharp,
+                  onPressed: () {
+                    print('blue');
+                  },
+                  color: Colors.blue,
+                )
               ],
             ),
           ),
@@ -102,6 +128,7 @@ class _UserProfileState extends State<UserProfile> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Colors.green,
           title: Row(
             children: const [
               Icon(Icons.logout_outlined),
@@ -129,7 +156,8 @@ class _UserProfileState extends State<UserProfile> {
               onPressed: () async {
                 await FirebaseAuth.instance.signOut().then((value) {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()));
+                      MaterialPageRoute(
+                          builder: (context) => const LoginScreen()));
                 });
               },
               child: TextWidget(
@@ -143,13 +171,24 @@ class _UserProfileState extends State<UserProfile> {
       },
     );
   }
+}
 
-  Widget _listTiles({
-    required String title,
-    required IconData icon,
-    required Function onPressed,
-    required Color color,
-  }) {
+class ListTiles extends StatelessWidget {
+  const ListTiles({
+    super.key,
+    required this.title,
+    required this.icon,
+    required this.onPressed,
+    required this.color,
+  });
+
+  final String title;
+  final IconData icon;
+  final Function onPressed;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(

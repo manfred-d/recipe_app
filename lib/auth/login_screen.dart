@@ -1,29 +1,56 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:recipe_app/auth/register_screen.dart';
+// import 'package:recipe_app/components/error_widget.dart';
 import 'package:recipe_app/components/text_field.dart';
 import 'package:recipe_app/components/text_widget.dart';
-import 'package:recipe_app/screens/bottomnav_screen.dart';
+// import 'package:recipe_app/screens/bottomnav_screen.dart';
+import 'package:recipe_app/services/firebase_auth.dart';
 import 'package:recipe_app/services/global_methods.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routeName = '/LoginScreen';
-  LoginScreen({super.key});
-
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+  }
+
+  void loginWithEmail() {
+    FirebaseAuthMethods(FirebaseAuth.instance).loginWithEmail(
+      email: emailController.text,
+      password: passwordController.text,
+      context: context,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.black.withOpacity(0.9),
-      body: SingleChildScrollView(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: const AssetImage('assets/images/auth/landing.jpg'),
+            alignment: Alignment.center,
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+                Colors.black.withOpacity(0.8), BlendMode.darken),
+          ),
+        ),
         child: SafeArea(
           child: Column(
             children: [
@@ -32,7 +59,8 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const Icon(
                 Icons.lock_outline_rounded,
-                size: 50,
+                size: 80,
+                color: Colors.white70,
               ),
               const SizedBox(
                 height: 30,
@@ -40,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
               TextWidget(
                 color: Colors.grey.shade700,
                 textSize: 22,
-                text: 'Welcome, Register Here',
+                text: 'Welcome Back Chef',
               ),
               const SizedBox(
                 height: 20,
@@ -48,9 +76,9 @@ class _LoginScreenState extends State<LoginScreen> {
               // username textField
               TextInputsField(
                 keyboard: TextInputType.emailAddress,
-                controller: widget.emailController,
+                controller: emailController,
                 hintText: 'Enter your email',
-                obscureText: true,
+                obscureText: false,
                 icon: const Icon(Icons.email_outlined),
               ),
 
@@ -59,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               TextInputsField(
                 keyboard: TextInputType.visiblePassword,
-                controller: widget.passwordController,
+                controller: passwordController,
                 hintText: 'Enter your Password',
                 obscureText: true,
                 icon: const Icon(Icons.lock_outlined),
@@ -76,24 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     backgroundColor: Colors.green,
                     minimumSize: const Size.fromHeight(20),
                   ),
-                  onPressed: () async {
-                    try {
-                      await FirebaseAuth.instance
-                          .signInWithEmailAndPassword(
-                              email: widget.emailController.text,
-                              password: widget.passwordController.text)
-                          .then((value) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const BottomnavScreen(),
-                          ),
-                        );
-                      });
-                    } on FirebaseAuthException catch (e) {
-                      print("Error ${e.toString()}");
-                    }
-                  },
+                  onPressed: loginWithEmail,
                   child: Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: TextWidget(
@@ -137,7 +148,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.all(5.0),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      FirebaseAuthMethods(FirebaseAuth.instance)
+                          .signInWithGoogle(context);
+                    },
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Image.asset(

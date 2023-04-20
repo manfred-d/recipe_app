@@ -3,29 +3,39 @@ import 'package:flutter/material.dart';
 import 'package:recipe_app/auth/login_screen.dart';
 import 'package:recipe_app/components/text_field.dart';
 import 'package:recipe_app/components/text_widget.dart';
-import 'package:recipe_app/screens/bottomnav_screen.dart';
+import 'package:recipe_app/services/firebase_auth.dart';
 import 'package:recipe_app/services/global_methods.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterScreen extends StatefulWidget {
   static const routeName = '/RegisterScreen';
-  RegisterScreen({super.key});
-
-  // text editing controller
-  final emailController = TextEditingController();
-  final usernameController = TextEditingController();
-  final passwordController = TextEditingController();
-
-  void dispose() {
-    emailController.dispose();
-    usernameController.dispose();
-    passwordController.dispose();
-  }
+  const RegisterScreen({super.key});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+
+  // text editing controller
+  final emailController = TextEditingController();
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
+  @override
+  void dispose() {
+    super.dispose();
+    emailController.dispose();
+    usernameController.dispose();
+    passwordController.dispose();
+  }
+
+  void signUpUser() async {
+    FirebaseAuthMethods(FirebaseAuth.instance).signUpWithEmail(
+      email: emailController.text,
+      password: passwordController.text,
+      context: context,
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,7 +76,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   // username textField
                   TextInputsField(
                     keyboard: TextInputType.name,
-                    controller: widget.usernameController,
+                    controller: usernameController,
                     hintText: 'Enter your Username',
                     obscureText: false,
                     icon: const Icon(Icons.person_2_outlined),
@@ -83,7 +93,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   // email text
                   TextInputsField(
                     keyboard: TextInputType.emailAddress,
-                    controller: widget.emailController,
+                    controller: emailController,
                     hintText: 'Enter your email',
                     obscureText: false,
                     icon: const Icon(Icons.email_outlined),
@@ -99,7 +109,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   TextInputsField(
                     keyboard: TextInputType.visiblePassword,
-                    controller: widget.passwordController,
+                    controller: passwordController,
                     hintText: 'Enter your Password',
                     obscureText: true,
                     icon: const Icon(Icons.lock_outlined),
@@ -123,31 +133,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         minimumSize: const Size.fromHeight(20),
                       ),
                       // on click sign in
-                      onPressed: () async {
-                        try {
-                          await FirebaseAuth.instance
-                              .createUserWithEmailAndPassword(
-                            email: widget.emailController.text,
-                            password: widget.passwordController.text,
-                          )
-                              .then((value) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const BottomnavScreen(),
-                              ),
-                            );
-                          });
-                        } on FirebaseAuthException catch (e) {
-                          if (e.code == 'weak-password') {
-                            print('weak password');
-                          } else if (e.code == 'email-already-in-use') {
-                            print('The account already in use');
-                          }
-                        } catch (e) {
-                          print(e);
-                        }
-                      },
+                      onPressed: signUpUser,
                       child: Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: TextWidget(
@@ -193,7 +179,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.all(5.0),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          FirebaseAuthMethods(FirebaseAuth.instance)
+                              .signInWithGoogle(context);
+                        },
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Image.asset(
@@ -239,3 +228,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
+
+
+// 
+
+                          // User? user = userCredential.user;
+                          // String username = widget.usernameController.text;
+                          // await user?.updateDisplayName(
+                          //   username,
+                          // );
+                          // // await user?.updatePhotoURL(photoUrl);
+
+                          // await FirebaseFirestore.instance
+                          //     .collection('users')
+                          //     .doc(user?.uid)
+                          //     .update({
+                          //   'username': username,
+                          // })

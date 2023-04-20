@@ -6,14 +6,15 @@ import 'package:recipe_app/auth/login_screen.dart';
 import 'package:recipe_app/auth/register_screen.dart';
 import 'package:recipe_app/firebase_options.dart';
 import 'package:recipe_app/screens/bottomnav_screen.dart';
-import 'package:recipe_app/screens/home_screen.dart';
-import 'package:recipe_app/screens/innerScreens/recipe_screen.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
+  // await dotenv.load();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
   runApp(const MyApp());
 }
 
@@ -50,9 +51,8 @@ class _MyAppState extends State<MyApp> {
 
       // route
       routes: {
-        RecipeScreen.routeName: (ctx) => const RecipeScreen(),
-        RegisterScreen.routeName: (ctx) => RegisterScreen(),
-        LoginScreen.routeName: (ctx) => LoginScreen(),
+        RegisterScreen.routeName: (ctx) => const RegisterScreen(),
+        LoginScreen.routeName: (ctx) => const LoginScreen(),
       },
     );
   }

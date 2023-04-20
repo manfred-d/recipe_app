@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:recipe_app/components/error_widget.dart';
 import 'package:recipe_app/components/text_widget.dart';
+import 'package:recipe_app/models/recipe_model.dart';
 import 'package:recipe_app/screens/innerScreens/recipe_screen.dart';
-import 'package:recipe_app/services/global_methods.dart';
+import 'package:http/http.dart' as http;
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -11,7 +16,33 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  TextEditingController textEditingController = TextEditingController();
+  List<RecipeModel> recipes = <RecipeModel>[];
+
+  TextEditingController searchController = TextEditingController();
+  // String apiKey = dotenv.env['API_RECIPE_KEY']!;
+
+  getSearchedRecipes(String query) async {
+    String url =
+        "https://api.spoonacular.com/recipes/complexSearch?apiKey=9a500d49ff474847b99f5b7c86265fb1&query=$query";
+    // "https://api.edamam.com/search?q=$query&app_id=$appId&app_key=$appKey";
+
+    var response = await http.get(Uri.parse(url));
+
+    Map<String, dynamic> jsonData = jsonDecode(response.body);
+
+    jsonData["results"].forEach((item) {
+      // print(item.toString());
+
+      RecipeModel recipeModel = RecipeModel.fromMap(item);
+      recipes.add(recipeModel);
+    });
+    // setState(() {});
+    @override
+    void initState() {
+      super.initState();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,13 +75,13 @@ class _SearchScreenState extends State<SearchScreen> {
               const SizedBox(
                 height: 30,
               ),
-              Container(
+              SizedBox(
                 width: MediaQuery.of(context).size.width,
                 child: Row(
                   children: [
                     Expanded(
                       child: TextField(
-                        controller: textEditingController,
+                        controller: searchController,
                         style:
                             const TextStyle(fontSize: 16, color: Colors.white),
                         decoration: InputDecoration(
@@ -72,7 +103,14 @@ class _SearchScreenState extends State<SearchScreen> {
                       width: 10,
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        if (searchController.text.isNotEmpty) {
+                          setState(() {});
+                          getSearchedRecipes(searchController.text);
+                        } else {
+                          myErrorMessage(context, 'Field is required');
+                        }
+                      },
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
@@ -91,24 +129,26 @@ class _SearchScreenState extends State<SearchScreen> {
                   ],
                 ),
               ),
-              GridView(
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  mainAxisSpacing: 35.0,
-                  maxCrossAxisExtent: 200,
+              Container(
+                child: GridView(
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    mainAxisSpacing: 35.0,
+                    maxCrossAxisExtent: 200,
+                  ),
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  physics: const ClampingScrollPhysics(),
+                  children: List.generate(recipes.length, (index) {
+                    return GridTile(
+                      child: RecipeTile(
+                        title: recipes[index].label,
+                        imageUrl: recipes[index].image,
+                        descr: recipes[index].desc,
+                        url: recipes[index].url,
+                      ),
+                    );
+                  }),
                 ),
-                shrinkWrap: true,
-                scrollDirection: Axis.vertical,
-                physics: const ClampingScrollPhysics(),
-                children: List.generate(6, (index) {
-                  return const GridTile(
-                    child: RecipeTile(
-                      title: 'Title',
-                      imageUrl:
-                          'https://edamam-product-images.s3.amazonaws.com/web-img/cf3/cf35e9533e63190fa9d4ace033b8ec2a.jpg?X-Amz-Security-Token=IQoJb3JpZ2luX2VjENb%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJHMEUCIGm1%2BHc1sOJ4SRUNIlMpMiZk8wY9SYqveo1ELWf%2B%2BE2UAiEAy4kDz5DP3z%2FjTzJ1xMq3F3eOQEaq7hBRCWNkktjYtCUqwgUIv%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgwxODcwMTcxNTA5ODYiDNXR8TC98LSmLVvN0yqWBev0Ku%2BM0H6r0bje6hI3DdAbINnaTgVFvziXslwTmfI1vT2RhsipyWqfI2JsDbY1v0OFa4sEhR1rDp3eOeQPTjlpSrRpX96slsj1t0JOTxIBnSR2OyUatRx9Whugi6fVjazmPKdtPALvd30uRCL21oMElYVHP0jSHuvqntVolCwqVLZyhZfUXlBuVJKh6lbsAGO%2FTx7zh1w8gUOGoHx9UT6EVAzE4QWa9FbqYRozuOxj4VXmm2Xirre6OZwZXYyJUvvd3ryt3X7TPqoIT%2Fhh8aqO3EqZPoufV9VJRtL%2Bf%2BA9TkwSJuMOSMWOyvpf%2FopyekH%2BTDFrvEpwWb0cJe5y0zGUOSkXtPCxaGK6f2eX1pzwI2o6vlzmE89lStvSsAGJdbbK%2ByW23w0f7T4ar5596lucsMEY2whd3pkce5j9HfaOITr%2FaQC%2F2nzWfQLMirv4CAxUKI%2BMo%2B756S0ZP3jD2Da4ksz%2FZdqTb%2BkC502A%2FfN%2BBr6NMXWdu%2Fq14RsoDbqtPSNzlAO9wWm9mv9t6SaU5J5O8GqKJUT%2B3h%2FkL%2F69fAj72%2BDjbtH73cadmYq232tCb%2Bfq1ylWf8TUPF50InZDEV6ilA9rduue%2FJFLl0UyhZ6s2%2FXUwoHdcPbI9eQ8halIIJUvM7ZBYO1F5CLhTuoPxyiU6etZUW1dlZxwQbeBhfDCeF2QKt%2BcAiAhu2kdN2qrKnVDXZKemNHhAZFu20YHRo90XT5WHkBk1Def4lCIUTrkTE%2FoGBwkLlNK08BPjM2xQT23bUKDHqeO%2B9DRLFUCvqNkNo%2BLWejNc5JMBZ%2FWdKR03hWd8af2Yjv%2Ffi7RjRWzBOZZH%2FU0TWeZH%2Fve3Yq6r2gx411ABtJGNxCVfZsuvRa6OKidw7l4MLbi2qEGOrEBNLNaTc0slb17zsFmrnRtyzEmGoDc39aBi6dIFE4yXZhR460%2BFC9Jsss5W9rwhXUGtbhh0eeNKVKDza4fp%2F9ogSdmAEGLVPqCy1rBJFReqaC%2BygAc7PHTdCgYhJBaD3jcf5f4sTAxB2IRS%2BRV3vvJngoqvN1cOIKzolL2GNZei3S%2Bj65W3SVHBv2tL14W2evgUYY6KRMWZ6uepMFNpPr7KZvgOugD%2FnGEXMa5DPPToirJ&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230412T142652Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=ASIASXCYXIIFJPJ4BFEA%2F20230412%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=c3450b3844dfed35dacd2da25c9d9ba349e4bc8fd1bb59055ebaf898c4782547',
-                      descr: 'Description',
-                    ),
-                  );
-                }),
               ),
             ],
           ),
@@ -124,9 +164,11 @@ class RecipeTile extends StatefulWidget {
     required this.imageUrl,
     required this.title,
     required this.descr,
+    required this.url,
   });
 
   final String imageUrl, title, descr;
+  final int url;
 
   @override
   State<RecipeTile> createState() => _RecipeTileState();
@@ -139,8 +181,19 @@ class _RecipeTileState extends State<RecipeTile> {
       children: [
         GestureDetector(
           onTap: () {
-            GlobalMethods.navigateTo(
-                ctx: context, routeName: RecipeScreen.routeName);
+            print(widget.url);
+            // GlobalMethods.navigateTo(
+            //   ctx: context,
+            //   routeName: RecipeScreen.routeName,
+            // );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RecipeScreen(
+                  postUrl: widget.url,
+                ),
+              ),
+            );
           },
           child: Container(
             margin: const EdgeInsets.all(4),

@@ -1,10 +1,14 @@
-import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
+// import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:recipe_app/components/categ_widget.dart';
 import 'package:recipe_app/components/recommendation_widget.dart';
 import 'package:recipe_app/components/text_widget.dart';
-import 'package:recipe_app/services/utils.dart';
+
+
+// import 'package:recipe_app/services/utils.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,10 +18,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  
+
   @override
   Widget build(BuildContext context) {
-    final Utils utils = Utils(context);
-    Size size = utils.getScreenSize;
+    User? user = FirebaseAuth.instance.currentUser;
+    String? name = user?.email;
+
+    // final Utils utils = Utils(context);
+    // Size size = utils.getScreenSize;
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 0,
@@ -41,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         children: <TextSpan>[
                           TextSpan(
-                            text: 'You name',
+                            text: name,
                             style: const TextStyle(
                               color: Colors.green,
                               fontSize: 18,
@@ -58,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Spacer(),
                     InkWell(
                       onTap: () {
-                        print('name');
+                        // print('name');
                       },
                       child: const CircleAvatar(
                         backgroundColor: Colors.green,
@@ -157,4 +166,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
